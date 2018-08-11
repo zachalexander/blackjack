@@ -6,8 +6,9 @@ let deck = [];
 const suits = ["Hearts", "Spades", "Clubs", "Diamonds"];
 let playerCards = [];
 let dealerCards = [];
+let deckAfterHit;
 const $hitButton = document.querySelector('.btn__hit-button');
-
+const $standButton = document.querySelector('.btn__stand-button');
 
 // ===================
 // GAMEPLAY 
@@ -20,7 +21,6 @@ for (let i = 0; i < 4; i++) {
             suit: suits[i],
             value: j
         };
-
         deck.push(card);
     }
 }
@@ -29,14 +29,13 @@ for (let i = 0; i < 4; i++) {
 deck = shuffleDeck(deck);
 
 // deal deck
-const firstDeal = deal(deck);
-console.log(sumHand(firstDeal));
+let firstDeal = deal(deck);
+
 // hit 
 $hitButton.addEventListener('click', playerHit);
 
-
-
-
+// stand
+$standButton.addEventListener('click', dealerHand);
 
 // ===================
 // FUNCTIONS
@@ -71,19 +70,41 @@ function deal(deck){
 
 function sumHand(deck) {
     let deckSum = deck.playerCards.map(function(element){
-        return element.value;       
+        let faceCardChange = element.value;
+        if (element.value > 10 && element.value < 14) {
+            faceCardChange = 10;
+        }
+        if (element.value === 14){
+            faceCardChange = 11;
+        }
+        return faceCardChange;       
     });
-    const reducer = (accumulator, currentValue) => accumulator + currentValue;
-    return deckSum.reduce(reducer);
+    const sumElements = (x, y) => x + y;
+    let handSum = deckSum.reduce(sumElements);
+    return handSum;
 }
 
 function playerHit() {
     let hitCard = firstDeal.remainingDeck.splice(0, 1);
+    let remainingDeck = firstDeal.remainingDeck;
+
     firstDeal.playerCards.push(hitCard[0]);
-    console.log(firstDeal);
-    console.log(sumHand(firstDeal));
+    let playerDeckAfterHit = firstDeal.playerCards;
+
+    let updatedDeck = {
+        playerCards: playerDeckAfterHit,
+        dealerCards: dealerCards,
+        remainingDeck: remainingDeck
+    }
+    deckAfterHit = updatedDeck;
 }
 
-function dealerHit() {
+// returning incorrect hand sum
 
+
+function dealerHand() {
+    let currentDeck = deckAfterHit;
+    console.log(currentDeck);
+    let hand = sumHand(currentDeck);
+    console.log(hand);
 }
