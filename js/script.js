@@ -3,10 +3,10 @@
 // ===================
 
 let deck = [];
-const suits = ["Hearts", "Spades", "Clubs", "Diamonds"];
 let playerCards = [];
 let dealerCards = [];
-let deckAfterHit;
+const suits = ["Hearts", "Spades", "Clubs", "Diamonds"];
+let currentDeck;
 const $hitButton = document.querySelector('.btn__hit-button');
 const $standButton = document.querySelector('.btn__stand-button');
 
@@ -32,10 +32,15 @@ deck = shuffleDeck(deck);
 let firstDeal = deal(deck);
 
 // hit 
-$hitButton.addEventListener('click', playerHit);
+$hitButton.addEventListener('click', function(){ currentDeck = hit(firstDeal, firstDeal.playerCards) });
 
 // stand
-$standButton.addEventListener('click', dealerHand);
+$standButton.addEventListener('click', function(){ 
+    if(currentDeck === undefined){
+        currentDeck = firstDeal;
+    };
+    dealerTurn(currentDeck) 
+});
 
 // ===================
 // FUNCTIONS
@@ -69,7 +74,7 @@ function deal(deck){
 }
 
 function sumHand(deck) {
-    let deckSum = deck.playerCards.map(function(element){
+    let deckSum = deck.map(function(element){
         let faceCardChange = element.value;
         if (element.value > 10 && element.value < 14) {
             faceCardChange = 10;
@@ -84,27 +89,28 @@ function sumHand(deck) {
     return handSum;
 }
 
-function playerHit() {
-    let hitCard = firstDeal.remainingDeck.splice(0, 1);
-    let remainingDeck = firstDeal.remainingDeck;
+function hit(deck, userToAdd) {
+    let hitCard = deck.remainingDeck.splice(0, 1);
+    let remainingDeck = deck.remainingDeck;
 
-    firstDeal.playerCards.push(hitCard[0]);
-    let playerDeckAfterHit = firstDeal.playerCards;
-
-    let updatedDeck = {
-        playerCards: playerDeckAfterHit,
-        dealerCards: dealerCards,
-        remainingDeck: remainingDeck
-    }
-    deckAfterHit = updatedDeck;
+    userToAdd.push(hitCard[0]);
+    deckAfterHit = userToAdd;
+    deck.remainingDeck = remainingDeck;
+    return deck;
 }
 
-// returning incorrect hand sum
 
+function dealerTurn(deck) {
+    let deckToDealer = deck;
+    let playerHandSum = sumHand(deckToDealer.playerCards, playerCards);
+    let dealerHandSum = sumHand(deckToDealer.dealerCards, dealerCards);
 
-function dealerHand() {
-    let currentDeck = deckAfterHit;
-    console.log(currentDeck);
-    let hand = sumHand(currentDeck);
-    console.log(hand);
+    console.log(deckToDealer);
+    console.log(playerHandSum);
+    console.log(dealerHandSum);
+
+    if (dealerHandSum <= 18) {
+        console.log('dealer hit');
+    }
+
 }
